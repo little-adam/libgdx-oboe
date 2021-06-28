@@ -52,13 +52,3 @@ add_library(libgdx-oboe SHARED
 
 target_link_libraries(libgdx-oboe samplerate android log oboe fmt OpenSLES ${FFMPEG_LIBS})
 target_compile_options(libgdx-oboe PRIVATE -Wall -Werror)
-
-# Strip
-add_custom_command(TARGET libgdx-oboe POST_BUILD
-        COMMAND "${ANDROID_TOOLCHAIN_PREFIX}strip" -g -S -d --strip-debug --verbose
-        "$<TARGET_FILE:libgdx-oboe>")
-foreach(LIB ${FFMPEG_LIBS})
-    add_custom_command(TARGET libgdx-oboe POST_BUILD
-            COMMAND "${ANDROID_TOOLCHAIN_PREFIX}strip" -g -S -d --strip-debug --verbose
-            "${CMAKE_CURRENT_SOURCE_DIR}/libs/${CMAKE_ANDROID_ARCH_ABI}/lib${LIB}.so")
-endforeach()
