@@ -5,6 +5,9 @@
 *.ear
 hs_err_pid*
 
+## C
+/library/.cxx
+
 ## Android Studio and Intellij and Android in general
 /android/libs/armeabi/
 /android/libs/armeabi-v7a/
