@@ -26,6 +26,8 @@ class soundpool: public renderable_audio {
         void resume();
         void resume(long id);
 
+        void dispose();
+
         void pan(long id, float value);
         void speed(long id, float value);
         void volume(long id, float value);
@@ -50,4 +52,6 @@ class soundpool: public renderable_audio {
         std::vector<float> m_pcm, m_sample_buffer;
 
         std::atomic_flag m_rendering_flag;
+
+        bool m_disposed;
 };

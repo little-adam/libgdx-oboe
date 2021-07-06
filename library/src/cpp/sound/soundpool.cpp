@@ -10,6 +10,7 @@ soundpool::soundpool(const data& pcm, int8_t channels)
     , m_channels(channels)
     , m_pcm(to_float(pcm))
     , m_rendering_flag(false)
+    , m_disposed(false)
 {}
 
 void soundpool::do_by_id(long id, std::function<void(std::vector<soundpool::sound>::iterator)> callback) {
@@ -36,6 +37,8 @@ soundpool::sound soundpool::gen_sound(float volume, float pan, float speed, bool
 }
 
 long soundpool::play(float volume, float speed, float pan, bool loop) {
+    if(m_disposed) return -1;
+
     while(m_rendering_flag.test_and_set(std::memory_order_acquire));
     m_sounds.emplace_back(gen_sound(volume, pan, speed, loop));
     long id = m_sounds.back().m_id;
@@ -44,46 +47,70 @@ long soundpool::play(float volume, float speed, float pan, bool loop) {
 }
 
 void soundpool::pause() {
+    if(m_disposed) return;
+
     while(m_rendering_flag.test_and_set(std::memory_order_acquire));
     for(auto& sound : m_sounds) { sound.m_paused = true; }
     m_rendering_flag.clear(std::memory_order_release);
 }
 
 void soundpool::pause(long id) {
+    if(m_disposed) return;
+
     do_by_id(id, [](auto sound) { sound->m_paused = true; });
 }
 
 void soundpool::resume() {
+    if(m_disposed) return;
+
     while(m_rendering_flag.test_and_set(std::memory_order_acquire));
     for(auto& sound : m_sounds) { sound.m_paused = false; }
     m_rendering_flag.clear(std::memory_order_release);
 }
 
 void soundpool::resume(long id) {
+    if(m_disposed) return;
+
     do_by_id(id, [](auto sound) { sound->m_paused = false; });
 }
 
 void soundpool::stop() {
+    if(m_disposed) return;
+
     while(m_rendering_flag.test_and_set(std::memory_order_acquire));
     m_sounds.clear();
     m_rendering_flag.clear(std::memory_order_release);
 }
 
 void soundpool::stop(long id) {
+    if(m_disposed) return;
+
     do_by_id(id, [&](auto sound) {
         m_sounds.erase(sound);
     });
 }
 
+void soundpool::dispose() {
+    if(m_disposed) return;
+
+    m_disposed = true;
+}
+
 void soundpool::volume(long id, float value) {
+    if(m_disposed) return;
+
     do_by_id(id, [value](auto sound) { sound->m_volume = value; });
 }
 
 void soundpool::looping(long id, bool loop) {
+    if(m_disposed) return;
+
     do_by_id(id, [loop](auto sound) { sound->m_looping = loop; });
 }
 
 void soundpool::speed(long id, float value) {
+    if(m_disposed) return;
+
     do_by_id(id, [value](auto sound) {
         float safe_value = std::clamp(value, 0.5f, 2.0f);
         sound->m_resampler.ratio(1.f / safe_value);
@@ -91,10 +118,14 @@ void soundpool::speed(long id, float value) {
 }
 
 void soundpool::pan(long id, float value) {
+    if(m_disposed) return;
+
     do_by_id(id, [value](auto sound) { sound->m_pan.pan(value); });
 }
 
 void soundpool::render(int16_t* audio_data, int32_t num_frames) {
+    if(m_disposed) return;
+
     static int limit_down = std::numeric_limits<int16_t>::min(),
                limit_up = std::numeric_limits<int16_t>::max();
 
