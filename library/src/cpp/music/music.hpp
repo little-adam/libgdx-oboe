@@ -14,6 +14,7 @@ class music: public renderable_audio {
         void play();
         void pause();
         void stop();
+        void dispose();
 
         void volume(float volume);
         float volume();
@@ -35,10 +36,10 @@ class music: public renderable_audio {
         inline void raw_render(int16_t* stream, int32_t frames);
 
         pan_effect m_pan;
-        bool m_playing, m_looping, m_eof;
+        bool m_playing, m_disposed, m_looping, m_eof;
         int m_cache_size;
         float m_position, m_volume;
-        std::function<void()> m_on_complete;
+        std::function<void()> m_on_complete = nullptr;
         int8_t m_channels;
         std::unique_ptr<audio_decoder> m_decoder;
 

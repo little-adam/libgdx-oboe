@@ -1,4 +1,5 @@
 #include "music.hpp"
+#include "../utility/log.hpp"
 #include <iterator>
 #include <cmath>
 
@@ -14,6 +15,7 @@ music::music(std::unique_ptr<audio_decoder> &&decoder, int8_t channels)
     , m_executor([&]() { fill_second_buffer(); }) {
     m_main_pcm.reserve(m_cache_size);
     stop();
+    m_disposed = false;
 }
 
 void music::fill_second_buffer() {
@@ -27,25 +29,41 @@ void music::swabuffers() {
 }
 
 void music::play() {
+    if(m_disposed) return;
+
     if(m_eof) stop();
     m_playing = true;
 }
 
 void music::pause() {
+    if(m_disposed) return;
+
     m_playing = false;
 }
 
 void music::stop() {
+    if(m_disposed) return;
+
     m_playing = false;
     m_eof = false;
     position(0);
 }
 
+void music::dispose() {
+    if(m_disposed) return;
+
+    m_disposed = true;
+}
+
 bool music::is_playing() {
+    if(m_disposed) return false;
+
     return m_playing;
 }
 
 void music::position(float position) {
+    if(m_disposed) return;
+
     while(m_buffer_swap.test_and_set(std::memory_order_acquire));
     m_executor.wait();
     m_decoder->seek(position);
@@ -57,35 +75,50 @@ void music::position(float position) {
 }
 
 float music::position() {
+    if(m_disposed) return 0;
+
     return m_position;
 }
 
 void music::volume(float volume) {
+    if(m_disposed) return;
+
     m_volume = std::min(std::max(0.0f, volume), 1.0f);
 }
 
 float music::volume() {
+    if(m_disposed) return 1;
+
     return m_volume;
 }
 
 bool music::is_looping() {
+    if(m_disposed) return false;
+
     return m_looping;
 }
 
 void music::is_looping(bool loop) {
+    if(m_disposed) return;
+
     m_looping = loop;
 }
 
 void music::on_complete(std::function<void()> callback) {
+    if(m_disposed) return;
+
     m_on_complete = callback;
 }
 
 void music::pan(float pan) {
+    if(m_disposed) return;
+
     m_pan.pan(pan);
 }
 
 void music::raw_render(int16_t* stream, int32_t frames) {
     if(!m_playing) return;
+    if(m_disposed) return;
 
     auto iter = std::next(m_main_pcm.begin(), m_current_frame * m_channels);
     int size = frames * m_channels;
@@ -100,6 +133,8 @@ void music::raw_render(int16_t* stream, int32_t frames) {
 
 void music::render(int16_t* stream, int32_t frames) {
     if(!m_playing) return;
+    if(m_disposed) return;
+
     while(m_buffer_swap.test_and_set(std::memory_order_acquire));
 
     int32_t frames_in_pcm = m_main_pcm.size() / m_channels;
