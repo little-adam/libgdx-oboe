@@ -69,7 +69,8 @@ OBOESOUND_METHOD(void, dispose) (JNIEnv* env, jobject self) {
     if (auto instance = get_var_as<std::shared_ptr<soundpool>>(env, self, "soundpool")) {
         (*instance)->dispose();
         set_var_as<std::shared_ptr<soundpool>>(env, self, "soundpool", nullptr);
-        (*instance).reset();
+        delete instance;
+        instance = nullptr;
     }
 }
 
