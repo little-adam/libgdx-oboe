@@ -108,8 +108,8 @@ OBOEMUSIC_METHOD(void, dispose) (JNIEnv* env, jobject self) {
     // delete_var<std::shared_ptr<music>>(env, self, "music");
     if (auto instance = get_var_as<std::shared_ptr<music>>(env, self, "music")) {
         (*instance)->dispose();
-        set_var_as<std::shared_ptr<music>>(env, self, "music", nullptr);
         (*instance).reset();
+        // set_var_as<std::shared_ptr<music>>(env, self, "music", nullptr);
     }
 }
 
