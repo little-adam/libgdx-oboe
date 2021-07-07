@@ -61,6 +61,10 @@ bool music::is_playing() {
     return m_playing;
 }
 
+bool music::is_disposed() {
+    return m_disposed;
+}
+
 void music::position(float position) {
     if(m_disposed) return;
 

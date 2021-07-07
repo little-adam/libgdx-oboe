@@ -163,3 +163,7 @@ void soundpool::render(int16_t* audio_data, int32_t num_frames) {
     m_rendering_flag.clear(std::memory_order_release);
 }
 
+bool soundpool::is_disposed() {
+    return m_disposed;
+}
+

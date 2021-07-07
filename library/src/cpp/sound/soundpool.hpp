@@ -27,6 +27,7 @@ class soundpool: public renderable_audio {
         void resume(long id);
 
         void dispose();
+        bool is_disposed();
 
         void pan(long id, float value);
         void speed(long id, float value);
