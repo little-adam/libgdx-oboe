@@ -19,10 +19,14 @@ music::music(std::unique_ptr<audio_decoder> &&decoder, int8_t channels)
 }
 
 void music::fill_second_buffer() {
+    if(m_disposed) return;
+
     m_decoder->decode(m_cache_size);
 }
 
 void music::swabuffers() {
+    if(m_disposed) return;
+
     m_main_pcm.swap(m_decoder->m_buffer);
     m_eof = m_decoder->m_eof;
     m_current_frame = 0;
