@@ -16,6 +16,8 @@ import com.badlogic.gdx.files.FileHandle
 class OboeAudio(private val assetManager: AssetManager) : AndroidAudio {
     private var audioEngine: NativeAudioEngine = NativeAudioEngine()
     private val audioDevicesList: MutableList<AudioDevice> = mutableListOf()
+    private val musicList: MutableList<OboeMusic> = mutableListOf()
+    private val soundList: MutableList<OboeSound> = mutableListOf()
 
     init {
         System.loadLibrary("libgdx-oboe")
@@ -47,12 +49,21 @@ class OboeAudio(private val assetManager: AssetManager) : AndroidAudio {
     override fun newMusic(file: FileHandle): Music = when (file.type()) {
         Files.FileType.Internal -> createMusicFromAsset(assetManager, file.path())
         else -> createMusicFromPath(file.file().path)
-    }.let(::OboeMusic)
+    }.let(::OboeMusic).also {
+        // add music to list
+        musicList.add(it)
+
+    }
 
     override fun newSound(file: FileHandle): Sound = when (file.type()) {
         Files.FileType.Internal -> createSoundpoolFromAsset(assetManager, file.path())
         else -> createSoundpoolFromPath(file.file().path)
-    }.let(::OboeSound)
+    }.let(::OboeSound).also {
+        // add sound to list
+        soundList.add(it)
+
+        }
+    }
 
     override fun newAudioDevice(samplingRate: Int, isMono: Boolean): AudioDevice =
             createAudioEngine(samplingRate, isMono)
