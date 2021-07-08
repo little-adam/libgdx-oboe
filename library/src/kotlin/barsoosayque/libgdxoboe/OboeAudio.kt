@@ -11,6 +11,9 @@ import com.badlogic.gdx.backends.android.AndroidAudio
 import com.badlogic.gdx.backends.android.AndroidMusic
 import com.badlogic.gdx.files.FileHandle
 
+private const val MAX_MUSIC_COUNT = 300
+private const val MAX_SOUND_COUNT = 100
+
 /** [Audio] implementation which utilize [OboeMusic] and [OboeSound] */
 // TODO: delegate errors from c++ to GdxRuntimeException
 class OboeAudio(private val assetManager: AssetManager) : AndroidAudio {
@@ -53,6 +56,12 @@ class OboeAudio(private val assetManager: AssetManager) : AndroidAudio {
         // add music to list
         musicList.add(it)
 
+        // TODO: clear disposed music
+        // if exceeding limit
+        if(musicList.size > MAX_MUSIC_COUNT){
+            // reduce list size
+            musicList.subList(0, MAX_MUSIC_COUNT / 2).clear();
+        }
     }
 
     override fun newSound(file: FileHandle): Sound = when (file.type()) {
@@ -62,6 +71,11 @@ class OboeAudio(private val assetManager: AssetManager) : AndroidAudio {
         // add sound to list
         soundList.add(it)
 
+        // TODO: clear disposed sound
+        // if exceeding limit
+        if (soundList.size > MAX_SOUND_COUNT) {
+            // reduce list size
+            soundList.subList(0, MAX_SOUND_COUNT / 2).clear();
         }
     }
 
