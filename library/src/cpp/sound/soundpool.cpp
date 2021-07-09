@@ -125,6 +125,7 @@ void soundpool::pan(long id, float value) {
 
 void soundpool::render(int16_t* audio_data, int32_t num_frames) {
     if(m_disposed) return;
+    if(m_sounds.size() == 0) return;
 
     static int limit_down = std::numeric_limits<int16_t>::min(),
                limit_up = std::numeric_limits<int16_t>::max();
@@ -168,5 +169,5 @@ bool soundpool::is_disposed() {
 }
 
 bool soundpool::is_rendering() {
-    return true;
+    return m_sounds.size() > 0;
 }
