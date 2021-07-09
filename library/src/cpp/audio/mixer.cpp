@@ -30,6 +30,10 @@ void mixer::render(int16_t* audio_data, int32_t num_frames) {
     for(const auto& weak_track : m_tracks) {
         is_dirty |= weak_track.expired();
         if(auto track = weak_track.lock()) {
+            if(track->is_disposed() || !track->is_rendering()){
+                continue;
+            }
+
             std::fill(m_buffer.begin(), m_buffer.begin() + num_frames * m_channels, 0);
             track->render(m_buffer.data(), num_frames);
 
@@ -49,4 +53,12 @@ void mixer::render(int16_t* audio_data, int32_t num_frames) {
     for (int j = 0; j < num_frames * m_channels; ++j) {
             audio_data[j] *= m_volume;
     }
+}
+
+bool mixer::is_disposed() {
+    return false;
+}
+
+bool mixer::is_rendering() {
+    return true;
 }

@@ -167,3 +167,6 @@ bool soundpool::is_disposed() {
     return m_disposed;
 }
 
+bool soundpool::is_rendering() {
+    return true;
+}

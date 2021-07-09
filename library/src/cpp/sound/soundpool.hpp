@@ -27,12 +27,14 @@ class soundpool: public renderable_audio {
         void resume(long id);
 
         void dispose();
-        bool is_disposed();
 
         void pan(long id, float value);
         void speed(long id, float value);
         void volume(long id, float value);
         void looping(long id, bool loop);
+
+        bool is_disposed();
+        bool is_rendering();
     private:
         struct sound {
             int32_t m_cur_frame;

@@ -28,6 +28,7 @@ class music: public renderable_audio {
         void is_looping(bool loop);
         bool is_playing();
         bool is_disposed();
+        bool is_rendering();
 
         void on_complete(std::function<void()> callback);
     private:

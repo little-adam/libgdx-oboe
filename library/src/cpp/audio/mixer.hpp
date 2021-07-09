@@ -15,6 +15,9 @@ class mixer: renderable_audio {
         void render(int16_t*, int32_t);
 
         float m_volume;
+
+        bool is_disposed();
+        bool is_rendering();
     private:
         const int8_t m_channels;
         mutable std::vector<int16_t> m_buffer;

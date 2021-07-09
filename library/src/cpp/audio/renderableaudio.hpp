@@ -7,4 +7,6 @@ class renderable_audio {
     public:
         virtual void render(int16_t*, int32_t) = 0;
         virtual ~renderable_audio() = default;
+        virtual bool is_disposed() = 0;
+        virtual bool is_rendering() = 0;
 };
