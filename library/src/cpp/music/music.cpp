@@ -35,13 +35,9 @@ void music::swabuffers() {
 void music::play() {
     if(m_disposed) return;
 
-    while(m_buffer_swap.test_and_set(std::memory_order_acquire));
-
     if(m_eof) stop();
 
     m_playing = true;
-
-    m_buffer_swap.clear(std::memory_order_release);
 }
 
 void music::pause() {
@@ -53,13 +49,9 @@ void music::pause() {
 void music::stop() {
     if(m_disposed) return;
 
-    while(m_buffer_swap.test_and_set(std::memory_order_acquire));
-
     m_playing = false;
     m_eof = false;
     position(0);
-
-    m_buffer_swap.clear(std::memory_order_release);
 }
 
 void music::dispose() {
