@@ -36,7 +36,10 @@ void music::play() {
     if(m_disposed) return;
 
     if(m_eof) {
-        stop();
+        m_eof = false;
+        if(m_position != 0) {
+            position(0);
+        }
     }
 
     m_playing = true;
