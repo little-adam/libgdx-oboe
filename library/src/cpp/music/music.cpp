@@ -35,9 +35,9 @@ void music::swabuffers() {
 void music::play() {
     if(m_disposed) return;
 
-    if(m_eof) stop();
-
-    position(0);
+    if(m_eof) {
+        stop();
+    }
 
     m_playing = true;
 }
@@ -53,6 +53,7 @@ void music::stop() {
 
     m_playing = false;
     m_eof = false;
+    position(0);
 }
 
 void music::dispose() {
