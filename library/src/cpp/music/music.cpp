@@ -14,9 +14,7 @@ music::music(std::unique_ptr<audio_decoder> &&decoder, int8_t channels)
     , m_buffer_swap(false)
     , m_executor([&]() { fill_second_buffer(); }) {
     m_main_pcm.reserve(m_cache_size);
-    m_playing = false;
-    m_eof = false;
-    m_stopped = false;
+    stop();
     m_disposed = false;
 }
 
@@ -37,16 +35,7 @@ void music::swabuffers() {
 void music::play() {
     if(m_disposed) return;
 
-    // stop music if eof is reached
-    if(m_eof) {
-        stop();
-    }
-
-    // reset position if music is stopped
-    if(m_stopped) {
-        position(0);
-        m_stopped = false;
-    }
+    if(m_eof) stop();
 
     m_playing = true;
 }
@@ -62,7 +51,7 @@ void music::stop() {
 
     m_playing = false;
     m_eof = false;
-    m_stopped = true;
+    position(0);
 }
 
 void music::dispose() {
