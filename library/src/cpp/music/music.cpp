@@ -14,7 +14,9 @@ music::music(std::unique_ptr<audio_decoder> &&decoder, int8_t channels)
     , m_buffer_swap(false)
     , m_executor([&]() { fill_second_buffer(); }) {
     m_main_pcm.reserve(m_cache_size);
-    stop();
+    m_playing = false;
+    m_eof = false;
+    m_stopped = false;
     m_disposed = false;
 }
 
